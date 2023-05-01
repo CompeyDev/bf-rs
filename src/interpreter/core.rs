@@ -83,7 +83,7 @@ impl Lexer {
 
             &_ => utils::throw_err(
                 "VM",
-                format!("invalid instruction {} at ptr {}", instr, instr_pos).as_str(),
+                format!("invalid instruction `{}` at ptr `{}`", instr, instr_pos).as_str(),
             ),
         }
 

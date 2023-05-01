@@ -1,4 +1,5 @@
 use std::{fmt::Write, process::exit};
+use colored::*;
 
 pub fn strip_code(code: &str) -> String {
     const INSTR_SET: [&str; 8] = [">", "<", "+", "-", ".", ",", "[", "]"];
@@ -24,6 +25,6 @@ pub fn strip_code(code: &str) -> String {
 }
 
 pub fn throw_err(err_type: &str, msg: &str) -> ! {
-    println!("[error] {}: {}", err_type, msg);
+    println!("[{}] {}: {}", "error".red().bold(), err_type, msg);
     exit(1);
 }
