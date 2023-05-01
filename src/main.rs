@@ -1,9 +1,9 @@
 mod interpreter;
 
-use std::fs;
+use std::{fs, process::exit};
 
 use interpreter::{core, utils};
-use clap::Parser;
+use clap::{Parser, CommandFactory};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -26,7 +26,13 @@ fn main() {
         Some(code) => code,
         None => match runtime_args.filename {
             Some(filename) => fs::read_to_string(filename).unwrap(),
-            None => utils::throw_err("CLI", "no input supplied")
+            None => {
+                if let Err(_) = Args::command().print_help() {
+                    utils::throw_err("CLI", "failed to display help menu")
+                }
+                
+                exit(0);
+            }
         }
     };
 
