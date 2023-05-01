@@ -1,3 +1,5 @@
+use crate::utils;
+
 #[derive(Debug, Clone)]
 pub struct BrainfuckInstance {
     vm: Vec<usize>,
@@ -79,7 +81,10 @@ impl Lexer {
                 }
             }
 
-            &_ => panic!("VM: invalid instruction {} at ptr {}", instr, instr_pos),
+            &_ => utils::throw_err(
+                "VM",
+                format!("invalid instruction {} at ptr {}", instr, instr_pos).as_str(),
+            ),
         }
 
         return self.instance.clone();
