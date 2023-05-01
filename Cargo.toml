@@ -1,13 +1,19 @@
 [package]
 name = "bfrs"
 description = "Yet another brainfuck interpreter written in Rust."
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
 authors = ["DevComp <hi@devcomp.xyz>"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[package.metadata.winres]
+OriginalFilename = "bfrs.exe"
+FileDescription = "Yet another brainfuck interpreter written in Rust."
+LegalCopyright = "Copyright © DevComp 2023"
 
 [dependencies]
 ascii = "1.1.0"
 clap = { version = "4.2.5", features = ["derive"] }
 colored = "2.0.0"
+
+[build-dependencies]
+winres = "0.1.12"
