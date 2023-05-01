@@ -9,7 +9,8 @@ type HashKey<K> = (K, TypeId);
 type Anything = Box<dyn Any>;
  
 pub struct AnyMap<K: Eq + Hash>(HashMap<HashKey<K>, Anything>);
- 
+
+#[allow(dead_code)]
 impl<K: Eq + Hash> AnyMap<K> {
     pub fn new() -> Self {
         Self(HashMap::new())
