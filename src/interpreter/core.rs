@@ -1,4 +1,6 @@
 use crate::utils;
+use ascii::AsciiChar;
+use std::str;
 use utils::AnyMap as HashMap;
 
 #[derive(Debug, Clone)]
@@ -21,6 +23,7 @@ pub enum Instruction {
     MovL,
     Incr,
     Decr,
+    Print,
 }
 
 impl BrainfuckInstance {
@@ -59,7 +62,9 @@ impl BrainfuckInstance {
             self.next_ptr = new_bf_instance.current_ptr;
             self.in_loop = mutated_in_loop;
         }
-        println!("vm: {:#?}", self.vm);
+
+        #[cfg(debug_assertions)]
+        println!("current vm structure: {:#?}", self.vm);
     }
 }
 
@@ -78,6 +83,7 @@ impl Lexer {
             "<" => Instruction::MovL,
             "+" => Instruction::Incr,
             "-" => Instruction::Decr,
+            "." => Instruction::Print,
             &_ => utils::throw_err(
                 "VM",
                 format!("invalid instruction `{}` at ptr `{}`", instr, instr_pos).as_str(),
@@ -136,8 +142,27 @@ impl Instructions {
             if !in_loop && current_mem_chunk != 0 {
                 instance.vm[instance.current_ptr as usize] -= 1; // ERROR: ATTEMPT TO SUBTRACT WITH OVERFLOW
             } else {
-                utils::throw_err("VM", "current pointer at 0 or in loop");
+                utils::throw_err("VM", "current memory chunk at 0 or in loop");
             }
+
+            return (in_loop, &*instance);
+        });
+
+        self.register(Instruction::Print, |in_loop, instance| {
+            let current_mem_chunk = instance.vm[instance.current_ptr as usize];
+
+            let char_code = current_mem_chunk as u8;
+            let encoded_str = match AsciiChar::from_ascii(char_code) {
+                Ok(str) => str,
+                Err(_) => {
+                    utils::throw_err(
+                        "VM",
+                        format!("invalid char code `{}`", current_mem_chunk).as_str(),
+                    );
+                }
+            };
+
+            print!("{encoded_str}");
 
             return (in_loop, &*instance);
         });
