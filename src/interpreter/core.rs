@@ -49,7 +49,8 @@ impl BrainfuckInstance {
             let mut lexer_instance = Lexer::new();
 
             let cloned_instance = &mut self.clone();
-            let (mutated_in_loop, mutated_bf_instance) = lexer_instance.parse(instr, instr_pos)(in_loop, cloned_instance);
+            let (mutated_in_loop, mutated_bf_instance) =
+                lexer_instance.parse(instr, instr_pos)(in_loop, cloned_instance);
 
             let new_bf_instance = mutated_bf_instance.clone();
 
@@ -67,7 +68,11 @@ impl Lexer {
         return Self {};
     }
 
-    pub fn parse(&mut self, instr: &str, instr_pos: usize) -> fn(bool, &mut BrainfuckInstance) -> (bool, &BrainfuckInstance) {
+    pub fn parse(
+        &mut self,
+        instr: &str,
+        instr_pos: usize,
+    ) -> fn(bool, &mut BrainfuckInstance) -> (bool, &BrainfuckInstance) {
         let instr_type = match instr {
             ">" => Instruction::MovR,
             "<" => Instruction::MovL,
@@ -103,7 +108,7 @@ impl Instructions {
                 instance.next_ptr += 1;
             }
 
-            return (in_loop, &*instance)
+            return (in_loop, &*instance);
         });
 
         self.register(Instruction::MovL, |in_loop, instance| {
@@ -114,7 +119,7 @@ impl Instructions {
                 utils::throw_err("VM", "current pointer at 0 or in loop");
             }
 
-            return (in_loop, &*instance)
+            return (in_loop, &*instance);
         });
 
         self.register(Instruction::Incr, |in_loop, instance| {
@@ -122,28 +127,36 @@ impl Instructions {
                 instance.vm[instance.current_ptr as usize] += 1;
             }
 
-            return (in_loop, &*instance)
+            return (in_loop, &*instance);
         });
 
         self.register(Instruction::Decr, |in_loop, instance| {
             let current_mem_chunk = instance.vm[instance.current_ptr as usize];
-            
+
             if !in_loop && current_mem_chunk != 0 {
                 instance.vm[instance.current_ptr as usize] -= 1; // ERROR: ATTEMPT TO SUBTRACT WITH OVERFLOW
             } else {
                 utils::throw_err("VM", "current pointer at 0 or in loop");
             }
 
-            return (in_loop, &*instance)
+            return (in_loop, &*instance);
         });
     }
 
-    pub fn register(&mut self, instr: Instruction, implementation: fn(bool, &mut BrainfuckInstance) -> (bool, &BrainfuckInstance)) {
+    pub fn register(
+        &mut self,
+        instr: Instruction,
+        implementation: fn(bool, &mut BrainfuckInstance) -> (bool, &BrainfuckInstance),
+    ) {
         self.instructions.insert(instr, implementation);
-
     }
 
-    pub fn get_handler(&self, instr: Instruction) -> Option<&fn(bool, &mut BrainfuckInstance) -> (bool, &BrainfuckInstance)> {
-        return self.instructions.get::<fn(bool, &mut BrainfuckInstance) -> (bool, &BrainfuckInstance)>(instr);
+    pub fn get_handler(
+        &self,
+        instr: Instruction,
+    ) -> Option<&fn(bool, &mut BrainfuckInstance) -> (bool, &BrainfuckInstance)> {
+        return self
+            .instructions
+            .get::<fn(bool, &mut BrainfuckInstance) -> (bool, &BrainfuckInstance)>(instr);
     }
 }
