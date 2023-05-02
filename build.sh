@@ -23,10 +23,13 @@ function build_linux() {
 }
 
 if [ $TYPE = release ]; then
-    build_win # Build windows release artifacts
-    
     if [ $ALL = true ]; then
+        build_win # Build windows release artifacts
         build_linux # Build linux release artifacts
+    elif [ $ALL = "win" ]; then
+        build_win
+    elif [ $ALL = "linux" ]; then
+        build_linux
     fi
 else
     cargo build --$TYPE && mv target/$TYPE/bfrs.exe .
