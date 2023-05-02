@@ -15,5 +15,5 @@ ascii = "1.1.0"
 clap = { version = "4.2.5", features = ["derive"] }
 colored = "2.0.0"
 
-[build-dependencies]
-winres = "0.1.12"
+[target.'cfg(windows)'.build-dependencies]
+windres = "0.2"
