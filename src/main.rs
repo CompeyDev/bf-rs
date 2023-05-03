@@ -3,7 +3,6 @@
 mod interpreter;
 
 use std::{fs, process::exit};
-
 use clap::{CommandFactory, Parser};
 use interpreter::{core, utils};
 
@@ -46,5 +45,5 @@ fn main() {
         input_code = utils::strip_code(input_code.as_str());
     }
 
-    core::BrainfuckInstance::new().load_string(input_code); // should be [ 0, 1, 1 ]
+    core::BrainfuckInstance::new().load_string(input_code);
 }
