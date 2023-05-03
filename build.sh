@@ -10,8 +10,9 @@ function build_win() {
     echo "[*] win :: building package... "
 
     cargo build --$TYPE --target $win_target_codename && \
-    mv target/$win_target_codename/release/$prog_name.exe . && \
+    mv target/$win_target_codename/release/$prog_name.exe . >/dev/null 2>&1 && \
     zip bfrs-$win_target_codename.zip $prog_name.exe >/dev/null
+    cleanup
 }
 
 function build_linux() {
@@ -19,13 +20,18 @@ function build_linux() {
 	
     mv build.rs build.rs.bak >/dev/null 2>&1
     cargo build --$TYPE && \
-    mv target/release/$prog_name . && \
+    mv target/release/$prog_name . && >/dev/null 2>&1 \
     zip bfrs-$linux_target_codename.zip $prog_name >/dev/null
     mv build.rs.bak build.rs >/dev/null 2>&1
+    cleanup
 }
 
-if [ $TYPE = release ]; then
-    if [ $ALL = true ]; then
+function cleanup() {
+    rm -rf bfrs bfrs.exe
+}
+
+if [ $TYPE = "release" ]; then
+    if [ $ALL = "all" ]; then
         build_win # Build windows release artifacts
         build_linux # Build linux release artifacts
     elif [ $ALL = "win" ]; then
@@ -36,3 +42,5 @@ if [ $TYPE = release ]; then
 else
     cargo build --$TYPE && mv target/$TYPE/bfrs.exe .
 fi
+
+
