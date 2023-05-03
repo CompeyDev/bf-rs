@@ -1,6 +1,6 @@
 use crate::utils;
 use ascii::AsciiChar;
-use std::str;
+use std::{iter::FromIterator, str};
 use utils::AnyMap as HashMap;
 
 #[derive(Debug, Clone)]
@@ -9,6 +9,14 @@ pub struct BrainfuckInstance {
     current_ptr: u32,
     next_ptr: u32,
     in_loop: bool,
+    loop_meta: Option<BrainfuckLoop>,
+}
+
+#[derive(Debug, Clone)]
+struct BrainfuckLoop {
+    current_loop: Option<Vec<usize>>,
+    loop_start: Option<usize>,
+    loop_end: Option<usize>,
 }
 
 pub struct Lexer;
@@ -23,6 +31,8 @@ pub enum Instruction {
     MovL,
     Incr,
     Decr,
+    LoopEnter,
+    LoopEnd,
     Print,
 }
 
@@ -33,6 +43,7 @@ impl BrainfuckInstance {
             current_ptr: 0,
             next_ptr: 1,
             in_loop: false,
+            loop_meta: None,
         };
     }
 
@@ -60,7 +71,12 @@ impl BrainfuckInstance {
             self.vm = new_bf_instance.vm;
             self.current_ptr = new_bf_instance.current_ptr;
             self.next_ptr = new_bf_instance.current_ptr;
+            self.loop_meta = new_bf_instance.loop_meta;
             self.in_loop = mutated_in_loop;
+
+            #[cfg(debug_assertions)]
+            println!("{instr_pos}: {instr}, {:#?}", self.loop_meta);
+
         }
 
         #[cfg(debug_assertions)]
@@ -83,6 +99,8 @@ impl Lexer {
             "<" => Instruction::MovL,
             "+" => Instruction::Incr,
             "-" => Instruction::Decr,
+            "[" => Instruction::LoopEnter,
+            "]" => Instruction::LoopEnd,
             "." => Instruction::Print,
             &_ => utils::throw_err(
                 "VM",
@@ -118,20 +136,18 @@ impl Instructions {
         });
 
         self.register(Instruction::MovL, |in_loop, instance| {
-            if !in_loop && instance.current_ptr != 0 {
+            if instance.current_ptr != 0 {
                 instance.current_ptr -= 1;
                 instance.next_ptr -= 1;
             } else {
-                utils::throw_err("VM", "current pointer at 0 or in loop");
+                utils::throw_err("VM", "current memory chunk at 0");
             }
 
             return (in_loop, &*instance);
         });
 
         self.register(Instruction::Incr, |in_loop, instance| {
-            if !in_loop {
-                instance.vm[instance.current_ptr as usize] += 1;
-            }
+            instance.vm[instance.current_ptr as usize] += 1;
 
             return (in_loop, &*instance);
         });
@@ -139,13 +155,50 @@ impl Instructions {
         self.register(Instruction::Decr, |in_loop, instance| {
             let current_mem_chunk = instance.vm[instance.current_ptr as usize];
 
-            if !in_loop && current_mem_chunk != 0 {
-                instance.vm[instance.current_ptr as usize] -= 1; // ERROR: ATTEMPT TO SUBTRACT WITH OVERFLOW
+            if current_mem_chunk != 0 {
+                instance.vm[instance.current_ptr as usize] -= 1;
             } else {
-                utils::throw_err("VM", "current memory chunk at 0 or in loop");
+                utils::throw_err("VM", "current memory chunk at 0");
             }
 
             return (in_loop, &*instance);
+        });
+
+        self.register(Instruction::LoopEnter, |_in_loop, instance| {
+            let current_mem_chunk = instance.vm[instance.current_ptr as usize];
+
+            if current_mem_chunk != 0 {
+                instance.in_loop = true;
+                instance.loop_meta = Some(BrainfuckLoop {
+                    current_loop: Some(Vec::new()),
+                    loop_start: Some(instance.current_ptr as usize),
+                    loop_end: None,
+                });
+            }
+
+            return (instance.in_loop, &*instance);
+        });
+
+        self.register(Instruction::LoopEnd, |in_loop, instance| {
+            let current_mem_chunk = instance.vm[instance.current_ptr as usize];
+
+            if current_mem_chunk == 0 {
+                instance.in_loop = false;
+                instance.loop_meta = None;
+            }
+
+            if in_loop {
+                let loop_meta = instance.loop_meta.as_mut().unwrap();
+
+                loop_meta.loop_end = Some(instance.current_ptr as usize);
+                loop_meta.current_loop = Some(Vec::from_iter(
+                    instance.vm[loop_meta.loop_start.unwrap()..loop_meta.loop_end.unwrap()]
+                        .iter()
+                        .cloned(),
+                ));
+            }
+
+            return (instance.in_loop, &*instance);
         });
 
         self.register(Instruction::Print, |in_loop, instance| {
