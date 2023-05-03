@@ -2,15 +2,15 @@
 
 mod interpreter;
 
-use std::{fs, process::exit};
 use clap::{CommandFactory, Parser};
 use interpreter::{core, utils};
+use std::{fs, process::exit};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long)]
-    strip_illegal: Option<bool>,
+    #[arg(short, long, value_parser)]
+    strip_illegal: Option<Option<bool>>,
 
     #[arg(short, long)]
     code: Option<String>,
@@ -37,7 +37,10 @@ fn main() {
     };
 
     let to_strip_illegal = match runtime_args.strip_illegal {
-        Some(val) => val,
+        Some(val) => match val {
+            Some(bool_val) => bool_val,
+            None => true,
+        },
         None => false,
     };
 
