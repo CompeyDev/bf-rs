@@ -1,6 +1,6 @@
 <div align="center">
   <img width="75%" src="https://raw.githubusercontent.com/CompeyDev/bf-rs/main/assets/brainfuck_rs-logo-light.png" />
-  <h3>Yet another brainfuck interpreter written in Rust.</h2>
+  <h3>Yet another brainfuck interpreter written in Rust.</h3>
 </div>
 <br />
 
