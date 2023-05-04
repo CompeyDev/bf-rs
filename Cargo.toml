@@ -4,6 +4,10 @@ description = "Yet another brainfuck interpreter written in Rust."
 version = "0.0.1"
 edition = "2021"
 authors = ["DevComp <hi@devcomp.xyz>"]
+readme = "README.md"
+repository = "https://github.com/CompeyDev/bf-rs"
+license = "GPL-3.0"
+keywords = ["brainfuck", "interpreter", "cli", "brainfuck-rust"]
 
 [package.metadata.winres]
 OriginalFilename = "bfrs.exe"
@@ -17,4 +21,3 @@ colored = "2.0.0"
 
 [build-dependencies]
 winresource = "0.1"
-
