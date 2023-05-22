@@ -76,7 +76,6 @@ impl BrainfuckInstance {
 
             #[cfg(debug_assertions)]
             println!("{instr_pos}: {instr}, {:#?}", self.loop_meta);
-
         }
 
         #[cfg(debug_assertions)]

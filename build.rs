@@ -6,4 +6,3 @@ fn main() {
             .unwrap();
     }
 }
-

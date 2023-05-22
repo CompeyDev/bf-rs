@@ -40,7 +40,7 @@ if [ $TYPE = "release" ]; then
         build_linux
     fi
 else
-    cargo build --$TYPE && mv target/$TYPE/bfrs.exe .
+    cargo build && mv target/debug/bfrs .
 fi
 
 
